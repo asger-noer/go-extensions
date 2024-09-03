@@ -1,0 +1,10 @@
+{
+  "plugins": {
+    "gophers": {
+      "version": "1.23.0"
+    },
+    "rustaceans": {
+      "overlord": "Gophers"
+    }
+  }
+}

@@ -1,0 +1,75 @@
+# Plugin system in Go
+
+Asger Noer
+3 Sep 2024
+asger@noer.dev
+
+## What is a plugin?
+
+- Consumers can add custom behavior
+- Allowing extensions without changeing the core
+
+.image images/35.svg 350 _
+.caption _Gopher_ by [[https://instagram.com/reneefrench][Renee French]]
+
+## The interface
+
+A plugin needs a well defined interface. The interface for `database/sql` is as an example very simple.
+```go
+type Driver interface {
+	// Open returns a new connection to the database.
+	// The name is a string in a driver-specific format.
+	//
+	// Open may return a cached connection (one previously
+	// closed), but doing so is unnecessary; the sql package
+	// maintains a pool of idle connections for efficient re-use.
+	//
+	// The returned connection is only used by one goroutine at a
+	// time.
+	Open(name string) (Conn, error)
+}
+```
+
+    The bigger the interface, the weaker the abstraction. @rob_pike
+
+.caption Go Proverb #4 by [[https://go-proverbs.github.io][@rob_pike]]
+
+## Plugin types
+
+## Manual plugins
+
+```go
+func main() {
+	logger := slog.New(tint.NewHandler(os.Stdout, nil))
+
+	// Register the plugins as a part of the main function.
+	registry.MustRegister("gopher", &gopher.Gopher{})          // HL
+	registry.MustRegister("rustacean", &rustacean.Rustacean{}) // HL
+	runners := registry.GetAll()
+
+	for _, runner := range runners {
+		runner.Print(logger)
+	}
+}
+```
+
+## The Blank import
+
+This is basically the way the `database/sql` package works.
+
+```go
+import _ "github.com/jackc/pgx/stdlib"
+
+db, err := sql.Open("pgx", "postgres://pgx_md5:secret@localhost:5432/pgx_test?sslmode=disable")
+if err != nil {
+	return err
+}
+```
+
+## Configuration
+
+- Custom configuration at compilation time
+- Environment variables
+- Configuration files
+
+## Demo
